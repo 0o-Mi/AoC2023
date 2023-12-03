@@ -6,10 +6,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.regex.Pattern;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 public class Day1 {
+
     public static void main(String[] args) {
         partOne();
         partTwo();
@@ -21,8 +23,8 @@ public class Day1 {
         dayUtils.startTimer();
         var i = streamInput
                 .map(String::chars)
+                .map(intStream -> intStream.filter(Character::isDigit))
                 .map(e -> e.map(Character::getNumericValue))
-                .map(intStream -> intStream.filter(character -> character >= 1 && character <= 9))
                 .map(IntStream::toArray)
                 .filter(e -> e.length > 0)
                 .map(array -> String.valueOf(array[0]) + array[array.length - 1])
