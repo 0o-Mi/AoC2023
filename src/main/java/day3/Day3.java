@@ -7,8 +7,9 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static utils.RegexPatterns.NUMBER;
+
 public class Day3 {
-    private static final Pattern NUMBER = Pattern.compile("(\\d+)");
     private static final Pattern GEAR = Pattern.compile("[*]");
     private static final String INVALID = "[\\d.]+";
 

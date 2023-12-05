@@ -1,14 +1,17 @@
 package day4;
 
+import day3.Day3;
 import utils.DayUtils;
+import utils.RegexPatterns;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static utils.RegexPatterns.NUMBER;
+
 public class Day4 {
-    private static final Pattern NUMBER = Pattern.compile("(\\d+)");
 //    private static final Pattern CARD_NUMBER = Pattern.compile("Card (\\d+):");
 
     public static void main(String[] args) {
@@ -59,10 +62,8 @@ public class Day4 {
     private static List<Card> getWinningCountList(List<String> stringCards) {
         List<Card> cards = new ArrayList<>();
         for (String s : stringCards) {
-//            Matcher cardMatcher = CARD_NUMBER.matcher(s);
             Matcher winningMatcher = NUMBER.matcher(s.substring(s.indexOf(":"), s.indexOf("|")));
             Matcher inputMatcher = NUMBER.matcher(s.substring(s.indexOf("|")));
-//            int cardNumber = cardMatcher.find() ? Integer.parseInt(cardMatcher.group(1)) : 0;
             List<Integer> winningNumbers = new ArrayList<>();
             List<Integer> inputNumbers = new ArrayList<>();
             while (winningMatcher.find()) {
@@ -111,11 +112,9 @@ public class Day4 {
 
         public boolean equals(final Object o) {
             if (o == this) return true;
-            if (!(o instanceof Card)) return false;
-            final Card other = (Card) o;
+            if (!(o instanceof Card other)) return false;
             if (this.getWinningCount() != other.getWinningCount()) return false;
-            if (this.getCardCount() != other.getCardCount()) return false;
-            return true;
+            return this.getCardCount() == other.getCardCount();
         }
 
         public int hashCode() {
