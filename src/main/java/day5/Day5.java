@@ -30,7 +30,7 @@ public class Day5 {
     }
 
     private static List<Scope> SEED_SCOPES;
-    private static List<Scope> LOCATION_SCOPES = new ArrayList<>();
+    private final static List<Scope> LOCATION_SCOPES = new ArrayList<>();
 
     private static void caseTwo() {
         DayUtils dayUtils = new DayUtils(5, 2);
@@ -134,7 +134,7 @@ public class Day5 {
         if (!currentEndMax.equals(expectedEndMax)) {
             Scope constScope = new Scope(currentEndMax, expectedEndMax);
             missingConversions.add(new Conversion(
-                    currentEndMax, //missing max
+                    currentEndMax,
                     constScope,
                     constScope
             ));
