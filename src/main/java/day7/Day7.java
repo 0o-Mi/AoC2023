@@ -144,7 +144,6 @@ public class Day7 {
 
     public record Hand(int[] cards, HandType handType, int[] value) {
 
-
         @Override
         public String toString() {
             return "Hand{" +
@@ -162,6 +161,7 @@ public class Day7 {
             TWO,
             ONE,
             HIGH;
+
             public static final Map<Integer, HandType> integerToHandType = Map.of(
                     5, HandType.FIVE,
                     4, HandType.FOUR,
@@ -169,7 +169,6 @@ public class Day7 {
                     2, HandType.ONE,
                     1, HandType.HIGH
             );
-
         }
 
         public static final Map<Character, Integer> cardToValue = new TreeMap<>(Map.of(

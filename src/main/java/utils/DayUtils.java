@@ -30,6 +30,18 @@ public class DayUtils {
     }
 
 
+    public String getStringInput() {
+        if (Files.exists(inputPath)) {
+            try {
+                return Files.readString(inputPath);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        } else {
+            throw new RuntimeException("Input file not found");
+        }
+    }
+
     public List<String> getListInput() {
         if (Files.exists(inputPath)) {
             try {
@@ -37,8 +49,9 @@ public class DayUtils {
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
+        } else {
+            throw new RuntimeException("Input file not found");
         }
-        return new ArrayList<>();
     }
 
     public void startTimer() {
