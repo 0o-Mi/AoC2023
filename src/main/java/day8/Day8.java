@@ -85,7 +85,7 @@ public class Day8 {
         return (a * b) / gCD(a, b);
     }
 
-    // greatest common divisor
+    // greatest common divisor // euclidean algorithm
     private static long gCD(long n1, long n2) {
         if (n2 == 0) {
             return n1;
