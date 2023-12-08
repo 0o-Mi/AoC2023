@@ -32,19 +32,24 @@ public class Day8 {
 //        System.out.println(Arrays.toString(instructions));
         Map<String, List<String>> nodes = getNodes(input);
         String currentNode = "AAA";
+        int steps = getSteps(currentNode, instructions, nodes);
+//        nodes.forEach((k,v) -> System.out.println(k + " " + v));
+        dayUtils.endTimer();
+        dayUtils.printAnswer(steps);
+    }
+
+    private static int getSteps(String currentNode, int[] instructions, Map<String, List<String>> nodes) {
         int steps = 0;
         while (!currentNode.equals("ZZZ")) {
             for (int instruction : instructions) {
                 steps++;
                 currentNode = nodes.get(currentNode).get(instruction);
-                if (currentNode == "ZZZ") {
+                if (currentNode.equals("ZZZ")) {
                     break;
                 }
             }
         }
-//        nodes.forEach((k,v) -> System.out.println(k + " " + v));
-        dayUtils.endTimer();
-        dayUtils.printAnswer(steps);
+        return steps;
     }
 
     private static void caseTwo() {
@@ -55,33 +60,51 @@ public class Day8 {
         System.out.println(Arrays.toString(instructions));
         Map<String, List<String>> nodes = getNodes(input);
 //        System.out.println("nodes " + nodes);
-        List<String> currentNodes = nodes.keySet().stream() // get nodes that end with A (XXA)
+        List<String> endWithANodes = nodes.keySet().stream() // get nodes that end with A (XXA)
                 .filter(id -> endsWithChar(id, 'A'))
                 .collect(Collectors.toCollection(ArrayList::new));
 //        System.out.println("currentNodes: " + currentNodes);
-        int steps = getStepsBruteForce(currentNodes, instructions, nodes);
-//        nodes.forEach((k,v) -> System.out.println(k + " " + v));
+//        int steps = getStepsBruteForce(currentNodes, instructions, nodes);
+        List<Integer> stepsList = new ArrayList<>();
+        System.out.println(endWithANodes);
+        for (String endWithANode : endWithANodes) {
+            int steps = getStepsCaseTwo(endWithANode, instructions, nodes);
+            stepsList.add(steps);
+        }
+        System.out.println(stepsList);
+        long previous = stepsList.get(0);
+        for (int i = 1; i < stepsList.size(); i++) {
+            previous = lCM(previous, stepsList.get(i));
+        }
         dayUtils.endTimer();
-        dayUtils.printAnswer(steps);
+        dayUtils.printAnswer(previous);
     }
 
-    private static int getStepsBruteForce(List<String> currentNodes, int[] instructions, Map<String, List<String>> nodes) {
+    // lowest common multiplier
+    private static long lCM(long a, long b) {
+        return (a * b) / gCD(a, b);
+    }
+
+    // greatest common divisor
+    private static long gCD(long n1, long n2) {
+        if (n2 == 0) {
+            return n1;
+        }
+        return gCD(n2, n1 % n2);
+    }
+
+    private static int getStepsCaseTwo(String currentNode, int[] instructions, Map<String, List<String>> nodes) {
         int steps = 0;
-        while (!allEndWithZ(currentNodes)) {
+        while (!endsWithChar(currentNode, 'Z')) {
             for (int instruction : instructions) {
                 steps++;
-                currentNodes.replaceAll(key -> nodes.get(key).get(instruction));
-                if (allEndWithZ(currentNodes)) {
+                currentNode = nodes.get(currentNode).get(instruction);
+                if (endsWithChar(currentNode, 'Z')) {
                     break;
                 }
             }
         }
         return steps;
-    }
-
-    private static boolean allEndWithZ(List<String> nodes) {
-        boolean b = nodes.stream().filter(id -> endsWithChar(id, 'Z')).count() == nodes.size();
-        return b;
     }
 
     private static boolean endsWithChar(String id, char Z) {
