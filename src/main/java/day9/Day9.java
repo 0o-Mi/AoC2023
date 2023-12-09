@@ -5,11 +5,14 @@ import utils.DayUtils;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.MatchResult;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import static utils.RegexPatterns.NUMBER;
 
 public class Day9 {
+
+    private static final Pattern NUMBER_WITH_NEGATIVE = Pattern.compile("-?\\d+");
+
     public static void main(String[] args) {
         caseOne();
     }
@@ -29,14 +32,14 @@ public class Day9 {
     }
 
     private static List<Long> getSequence(String input) {
-        return NUMBER.matcher(input).results()
+        return NUMBER_WITH_NEGATIVE.matcher(input).results()
                 .map(MatchResult::group).map(Long::parseLong)
                 .toList();
     }
 
     private static long getNextNumber(List<Long> sequence) {
         List<Long> differences = getDifferences(sequence);
-        if (differences.stream().anyMatch(e -> e != 0)) {
+        if (differences.stream().anyMatch(x -> x != 0)) {
             return sequence.getLast() + getNextNumber(differences);
         } else {
             return sequence.getLast();
