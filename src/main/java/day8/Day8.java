@@ -20,7 +20,7 @@ public class Day8 {
     );
 
     public static void main(String[] args) {
-//        caseOne();
+        caseOne();
         caseTwo();
     }
 
@@ -57,7 +57,7 @@ public class Day8 {
         List<String> input = dayUtils.getListInput();
         dayUtils.startTimer();
         int[] instructions = input.getFirst().chars().map(key -> INSTRUCTION_MAP.get((char) key)).toArray();
-        System.out.println(Arrays.toString(instructions));
+//        System.out.println(Arrays.toString(instructions));
         Map<String, List<String>> nodes = getNodes(input);
 //        System.out.println("nodes " + nodes);
         List<String> endWithANodes = nodes.keySet().stream() // get nodes that end with A (XXA)
@@ -66,12 +66,12 @@ public class Day8 {
 //        System.out.println("currentNodes: " + currentNodes);
 //        int steps = getStepsBruteForce(currentNodes, instructions, nodes);
         List<Integer> stepsList = new ArrayList<>();
-        System.out.println(endWithANodes);
+//        System.out.println(endWithANodes);
         for (String endWithANode : endWithANodes) {
             int steps = getStepsCaseTwo(endWithANode, instructions, nodes);
             stepsList.add(steps);
         }
-        System.out.println(stepsList);
+//        System.out.println(stepsList);
         long previous = stepsList.get(0);
         for (int i = 1; i < stepsList.size(); i++) {
             previous = lCM(previous, stepsList.get(i));
