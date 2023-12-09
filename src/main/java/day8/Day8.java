@@ -28,7 +28,7 @@ public class Day8 {
         dayUtils.startTimer();
         Map<String, List<String>> nodes = getNodes(input);
         String currentNode = "AAA";
-        int steps = getSteps(currentNode, nodes, input, e -> e.equals("ZZZ"));
+        long steps = getSteps(currentNode, nodes, input, e -> e.equals("ZZZ"));
         dayUtils.endTimer();
         dayUtils.printAnswer(steps);
     }
@@ -40,10 +40,11 @@ public class Day8 {
         Map<String, List<String>> nodes = getNodes(input);
         List<String> aNodes = nodes.keySet().stream() // get nodes that end with A (XXA)
                 .filter(id -> id.charAt(2) == 'A').toList();
-        List<Integer> steps = aNodes.stream().map(aNode -> getSteps(aNode, nodes, input, id -> id.charAt(2) == 'Z')).toList();
-        Long LCM = steps.stream().map(e -> (long) e).reduce(Day8::lCM).orElseThrow();
+        List<Integer> steps = aNodes.stream()
+                .map(aNode -> getSteps(aNode, nodes, input, id -> id.charAt(2) == 'Z')).toList();
+        Long lCM = steps.stream().map(e -> (long) e).reduce(Day8::lCM).orElseThrow();
         dayUtils.endTimer();
-        dayUtils.printAnswer(LCM);
+        dayUtils.printAnswer(lCM);
     }
 
     private static Map<String, List<String>> getNodes(List<String> input) {
