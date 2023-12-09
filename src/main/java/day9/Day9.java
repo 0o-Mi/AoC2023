@@ -15,6 +15,7 @@ public class Day9 {
 
     public static void main(String[] args) {
         caseOne();
+        caseTwo();
     }
 
     private static void caseOne() {
@@ -23,9 +24,19 @@ public class Day9 {
         dayUtils.startTimer();
         Long sum = input.stream()
                 .map(Day9::getSequence)
-                .peek(System.out::println)
                 .map(Day9::getNextNumber)
-                .peek(System.out::println)
+                .reduce(Long::sum).orElseThrow();
+        dayUtils.endTimer();
+        dayUtils.printAnswer(sum);
+    }
+
+    private static void caseTwo() {
+        DayUtils dayUtils = new DayUtils(9, 2);
+        List<String> input = dayUtils.getListInput();
+        dayUtils.startTimer();
+        Long sum = input.stream()
+                .map(Day9::getSequence)
+                .map(Day9::getPreviousNumber)
                 .reduce(Long::sum).orElseThrow();
         dayUtils.endTimer();
         dayUtils.printAnswer(sum);
@@ -44,6 +55,10 @@ public class Day9 {
         } else {
             return sequence.getLast();
         }
+    }
+
+    private static long getPreviousNumber(List<Long> sequence) {
+        return getNextNumber(sequence.reversed());
     }
 
     private static List<Long> getDifferences(List<Long> numbers) {
