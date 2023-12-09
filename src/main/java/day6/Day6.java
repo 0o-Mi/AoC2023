@@ -16,6 +16,20 @@ public class Day6 {
         caseTwo();
     }
 
+    private static void caseOne() {
+        DayUtils dayUtils = new DayUtils(6, 1);
+        List<String> input = dayUtils.getListInput();
+        dayUtils.startTimer();
+        List<Race> races = getRaces(input);
+        List<Integer> waysCount = new ArrayList<>();
+        for (Race race : races) {
+            findWays(race, waysCount);
+        }
+        int multiply = waysCount.stream().reduce((a, b) -> a * b).orElseThrow();
+        dayUtils.endTimer();
+        dayUtils.printAnswer(multiply);
+    }
+
     private static void caseTwo() {
         DayUtils dayUtils = new DayUtils(6, 2);
         List<String> input = dayUtils.getListInput();
@@ -35,35 +49,14 @@ public class Day6 {
         return new Race(Long.parseLong(time), Long.parseLong(distance));
     }
 
-    private static void caseOne() {
-        DayUtils dayUtils = new DayUtils(6, 1);
-        List<String> input = dayUtils.getListInput();
-        dayUtils.startTimer();
-        List<Race> races = getRaces(input);
-        List<Integer> waysCount = new ArrayList<>();
-        for (Race race : races) {
-            findWays(race, waysCount);
-//            solveHoldTime(race);
+    private static List<Race> getRaces(List<String> input) {
+        List<Integer> times = getNumbers(input.get(0));
+        List<Integer> distances = getNumbers(input.get(1));
+        List<Race> races = new ArrayList<>();
+        for (int i = 0; i < times.size(); i++) {
+            races.add(new Race(times.get(i), distances.get(i)));
         }
-        int multiply = waysCount.stream().reduce((a, b) -> a * b).orElseThrow();
-        dayUtils.endTimer();
-        dayUtils.printAnswer(multiply);
-    }
-
-    private static long solveHoldTime(Race race) {
-        long a = -1;
-        long b = race.holdTime();
-        long c = -race.distance();
-        double delta = Math.sqrt(b * b - 4 * a * c);
-        double sol1 = (b + delta) / 2; // why not multiply by a ????!?!
-        double sol2 = (b - delta) / 2; // I'm confused
-        System.out.println(sol1 + " " + sol2);
-        double range = sol1 - sol2;
-        System.out.println(calculateDistance(race, sol1));
-        System.out.println(calculateDistance(race, sol2));
-        return (long) (
-                sol1 - Math.ceil(sol2) + 1 - 2 * ((delta % 1) == 0 ? 1 : 0)
-        );
+        return races;
     }
 
     private static void findWays(Race race, List<Integer> waysCount) {
@@ -81,19 +74,25 @@ public class Day6 {
         return race.holdTime() * timeWaited - Math.pow(timeWaited, 2);
     }
 
-    private static List<Race> getRaces(List<String> input) {
-        List<Integer> times = getNumbers(input.get(0));
-        List<Integer> distances = getNumbers(input.get(1));
-        List<Race> races = new ArrayList<>();
-        for (int i = 0; i < times.size(); i++) {
-            races.add(new Race(times.get(i), distances.get(i)));
-        }
-        return races;
-    }
-
     private static List<Integer> getNumbers(String input) {
         Matcher matcher = RegexPatterns.NUMBER.matcher(input);
         return matcher.results().map(MatchResult::group).map(Integer::parseInt).toList();
+    }
+
+    private static long solveHoldTime(Race race) {
+        long a = -1;
+        long b = race.holdTime();
+        long c = -race.distance();
+        double delta = Math.sqrt(b * b - 4 * a * c);
+        double sol1 = (b + delta) / 2; // why not multiply by a ????!?!
+        double sol2 = (b - delta) / 2; // I'm confused
+        System.out.println(sol1 + " " + sol2);
+        double range = sol1 - sol2;
+        System.out.println(calculateDistance(race, sol1));
+        System.out.println(calculateDistance(race, sol2));
+        return (long) (
+                sol1 - Math.ceil(sol2) + 1 - 2 * ((delta % 1) == 0 ? 1 : 0)
+        );
     }
 
     public record Race(long holdTime, long distance) {

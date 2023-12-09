@@ -44,7 +44,7 @@ public class Day2 {
         dayUtils.printAnswer(i);
     }
 
-    // turns the roundsString into a SummarizedGame - maximum color values
+    // turns the roundsString into a SummarizedGame - maximum color conversions
     private static SummarizedGame extractSummarizedGame(String[] strings) {
         int gameNumber = extractGameNumber(strings);
         List<String[]> rounds = Arrays.stream(strings).map(e -> e.split(",")).toList();
@@ -57,7 +57,7 @@ public class Day2 {
     // finds the maximum number of a color in String rounds
     private static Integer getMaxSummarizedColorValue(List<String[]> rounds, String color) {
         return rounds.stream().map(array -> Arrays.stream(array)
-                .filter(colorValue -> colorValue.contains(color)) // filters values in round to one color
+                .filter(colorValue -> colorValue.contains(color)) // filters conversions in round to one color
                 .map(colorValue -> Integer.parseInt(colorValue.substring(0, colorValue.lastIndexOf(' ')).strip())) // extracts the color
                 .findFirst().orElse(0)).max(Comparator.comparingInt(e -> e)).orElseThrow(); // finds the maximum
     }
