@@ -14,7 +14,6 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class Day8 {
-    // example of node: NFK = (LMH, RSS)
     private static final Pattern NODE_PATTERN = Pattern.compile("(\\w+) = \\((\\w+), (\\w+)\\)");
 
     public static void main(String[] args) {
@@ -74,7 +73,7 @@ public class Day8 {
         return (a * b) / gCD(a, b);
     }
 
-    // greatest common divisor // euclidean algorithm
+    // greatest common divisor // Euclidean algorithm
     private static long gCD(long n1, long n2) {
         if (n2 == 0) {
             return n1;

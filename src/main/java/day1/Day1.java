@@ -18,7 +18,7 @@ public class Day1 {
     }
 
     private static void partOne() {
-        DayUtils dayUtils = new DayUtils(1, 1, DayUtils.FetchOption.RE_FETCH);
+        DayUtils dayUtils = new DayUtils(1, 1);
         Stream<String> streamInput = dayUtils.getListInput().stream();
         dayUtils.startTimer();
         var i = streamInput
