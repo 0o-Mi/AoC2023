@@ -36,7 +36,6 @@ public class Day10 {
         Grid grid = new Grid(input);
         GridItem startingPosition = grid.findFirst('S').orElseThrow();
         GridNavigator.NEXT_DIRECTION startingDirection = grid.getStartingDirection(startingPosition);
-        System.out.println(startingPosition + " " + startingDirection);
         GridNavigator gridNavigator = new GridNavigator(grid, startingPosition, startingDirection);
         while (!gridNavigator.findNext()) {
         }
@@ -48,17 +47,22 @@ public class Day10 {
         List<String> input = dayUtils.getListInput();
         dayUtils.startTimer();
         GridNavigator gridNavigator = navigateLoop(input);
-        Map<Integer, List<Integer>> visitedByRow = gridNavigator.visited.stream().collect(
-                Collectors.groupingBy(e -> e.y, Collectors.filtering(e -> e.value != '-', Collectors.mapping(e -> e.x, Collectors.toList()))));
-        visitedByRow.forEach((k,v) -> v.sort(Comparator.comparingInt(e -> e)));
-        visitedByRow.forEach((k,v) -> System.out.println(k + " " + v));
+        Map<Integer, List<GridItem>> visitedByRow = gridNavigator.visited.stream().collect(
+                Collectors.groupingBy(e -> e.y, Collectors.filtering(e -> e.value() != '-', Collectors.toList())));
+        visitedByRow.forEach((k, v) -> v.sort(Comparator.comparingInt(GridItem::x)));
         int tilesEnclosedSum = 0;
-        for (var row : visitedByRow.values()) {
+        for (var row : visitedByRow.values()) { // make sure to not count X------X as enclosed
+            System.out.println(row);
             for (int i = 0; i < row.size(); i += 2) { // += 2 to skip nonIn
-                int inLeft = row.get(i);
-                int inRight = row.get(i + 1);
-                tilesEnclosedSum += inRight - inLeft - 1;
-                System.out.println(tilesEnclosedSum + " " + (inRight + " " + inLeft));
+                GridItem inLeft = row.get(i);
+                GridItem inRight = row.get(i + 1);
+                char[] subGrid = gridNavigator.grid.getSubGrid(inLeft, inRight);
+                String shared = new String(subGrid);
+                System.out.println(subGrid);
+                if (!shared.equals("-".repeat(shared.length()))) {
+                    tilesEnclosedSum += shared.length();
+                    System.out.println("tilesEnclosedSum: " + tilesEnclosedSum);
+                }
             }
         }
         dayUtils.endTimer();
@@ -76,7 +80,7 @@ public class Day10 {
             this.currentPosition = currentPosition;
             this.nextDirection = nextDirection;
             this.visited = new ArrayList<>();
-            Arrays.stream(grid.grid).forEach(System.out::println);
+//            Arrays.stream(grid.grid).forEach(System.out::println);
         }
 
         public boolean findNext() {
@@ -173,6 +177,24 @@ public class Day10 {
                     .toArray(char[][]::new);
         }
 
+        public char[] getSubGrid(GridItem first, GridItem second) {
+            int y1 = first.y;
+            int y2 = second.y;
+            int x1 = first.x;
+            int x2 = second.x;
+            if (y1 == y2) {
+                return Arrays.copyOfRange(grid[y1], x1 + 1, x2);
+            } else if (x1 == x2) {
+                char[] chars = new char[y2 - y1];
+                for (int i = y1; i <= y2; i++) {
+                    chars[i - y1] = grid[i][x1];
+                }
+                return chars;
+            } else {
+                throw new RuntimeException("Not a subgrid");
+            }
+        }
+
         public Optional<GridItem> findFirst(char value) {
             for (int y = 0; y < grid.length; y++) {
                 char[] chars = grid[y];
@@ -188,7 +210,6 @@ public class Day10 {
 
         public GridNavigator.NEXT_DIRECTION getStartingDirection(GridItem startingPosition) {
             List<Optional<GridItem>> startingNeighbours = getNeighboursStar(startingPosition.y, startingPosition.x);
-            System.out.println(startingNeighbours);
             Optional<GridNavigator.NEXT_DIRECTION> UP = startingNeighbours.get(0).map(top -> {
                 if (top.value == '|' || top.value == 'F' || top.value == '7') {
                     return GridNavigator.NEXT_DIRECTION.UP;
@@ -258,6 +279,10 @@ public class Day10 {
             } catch (IndexOutOfBoundsException e) {
                 return Optional.empty();
             }
+        }
+
+        public char[][] getGrid() {
+            return grid;
         }
 
         public int getWidth() {
