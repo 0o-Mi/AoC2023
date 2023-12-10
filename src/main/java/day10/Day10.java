@@ -3,6 +3,11 @@ package day10;
 import day10.Day10.Grid.GridItem;
 import utils.DayUtils;
 
+import java.io.BufferedWriter;
+import java.nio.file.Files;
+import java.nio.file.OpenOption;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -47,26 +52,39 @@ public class Day10 {
         List<String> input = dayUtils.getListInput();
         dayUtils.startTimer();
         GridNavigator gridNavigator = navigateLoop(input);
-        Map<Integer, List<GridItem>> visitedByRow = gridNavigator.visited.stream().collect(
-                Collectors.groupingBy(e -> e.y, Collectors.filtering(e -> e.value() != '-', Collectors.toList())));
-        visitedByRow.forEach((k, v) -> v.sort(Comparator.comparingInt(GridItem::x)));
-        int tilesEnclosedSum = 0;
-        for (var row : visitedByRow.values()) { // make sure to not count X------X as enclosed
-            System.out.println(row);
-            for (int i = 0; i < row.size(); i += 2) { // += 2 to skip nonIn
-                GridItem inLeft = row.get(i);
-                GridItem inRight = row.get(i + 1);
-                char[] subGrid = gridNavigator.grid.getSubGrid(inLeft, inRight);
-                String shared = new String(subGrid);
-                System.out.println(subGrid);
-                if (!shared.equals("-".repeat(shared.length()))) {
-                    tilesEnclosedSum += shared.length();
-                    System.out.println("tilesEnclosedSum: " + tilesEnclosedSum);
-                }
-            }
+        List<GridItem> corners = gridNavigator.visited.stream()
+                .filter(e -> List.of('7', 'J', 'L', 'F').contains(e.value)).toList();
+        double sum = 0;
+        for (int i = 1; i < corners.size(); i++) {
+            sum += corners.get(i - 1).x() * corners.get(i - 1).y() - corners.get(i).x() * corners.get(i).y();
         }
+        sum += corners.getLast().x() * corners.getLast().y() - corners.getFirst().x() * corners.getFirst().y();
+        sum = Math.abs(sum);
+        double area = sum / 2 * Math.log(0); // ... end
+
         dayUtils.endTimer();
-        dayUtils.printAnswer(tilesEnclosedSum);
+        dayUtils.printAnswer(area);
+    }
+
+    private static void getLoopToFile(GridNavigator gridNavigator) {
+        Map<Integer, List<GridItem>> visitedByRow = gridNavigator.visited.stream().collect(
+                Collectors.groupingBy(e -> e.y));
+        visitedByRow.forEach((k, v) -> v.sort(Comparator.comparingInt(GridItem::x)));
+        Path path = Path.of("MyAoC/src/main/java/day10/Loop.txt");
+        try (BufferedWriter empty = Files.newBufferedWriter(path, StandardOpenOption.TRUNCATE_EXISTING);
+             BufferedWriter writer = Files.newBufferedWriter(path, StandardOpenOption.APPEND)) {
+            for (List<GridItem> value : visitedByRow.values()) {
+                int previous = 0;
+                for (GridItem gridItem : value) {
+                    writer.write("@".repeat(Math.max(gridItem.x() - previous - 1, 0)) + gridItem.value());
+                    previous = gridItem.x();
+                }
+                writer.write("@".repeat(Math.max(gridNavigator.grid.width - previous - 1, 0)));
+                writer.newLine();
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public static class GridNavigator {
