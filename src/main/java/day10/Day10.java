@@ -35,7 +35,9 @@ public class Day10 {
     private static GridNavigator navigateLoop(List<String> input) {
         Grid grid = new Grid(input);
         GridItem startingPosition = grid.findFirst('S').orElseThrow();
-        GridNavigator gridNavigator = new GridNavigator(grid, startingPosition, LEFT); // found in input // LEFT
+        GridNavigator.NEXT_DIRECTION startingDirection = grid.getStartingDirection(startingPosition);
+        System.out.println(startingPosition + " " + startingDirection);
+        GridNavigator gridNavigator = new GridNavigator(grid, startingPosition, startingDirection);
         while (!gridNavigator.findNext()) {
         }
         return gridNavigator;
@@ -46,13 +48,17 @@ public class Day10 {
         List<String> input = dayUtils.getListInput();
         dayUtils.startTimer();
         GridNavigator gridNavigator = navigateLoop(input);
-        Map<Integer, List<Integer>> collect = gridNavigator.visited.stream().collect(Collectors.groupingBy(e -> e.y, Collectors.mapping(e -> e.x, Collectors.toList())));
+        Map<Integer, List<Integer>> visitedByRow = gridNavigator.visited.stream().collect(
+                Collectors.groupingBy(e -> e.y, Collectors.filtering(e -> e.value != '-', Collectors.mapping(e -> e.x, Collectors.toList()))));
+        visitedByRow.forEach((k,v) -> v.sort(Comparator.comparingInt(e -> e)));
+        visitedByRow.forEach((k,v) -> System.out.println(k + " " + v));
         int tilesEnclosedSum = 0;
-        for (var row : collect.values()) {
+        for (var row : visitedByRow.values()) {
             for (int i = 0; i < row.size(); i += 2) { // += 2 to skip nonIn
                 int inLeft = row.get(i);
-                int inRight = row.get(i);
+                int inRight = row.get(i + 1);
                 tilesEnclosedSum += inRight - inLeft - 1;
+                System.out.println(tilesEnclosedSum + " " + (inRight + " " + inLeft));
             }
         }
         dayUtils.endTimer();
@@ -70,12 +76,17 @@ public class Day10 {
             this.currentPosition = currentPosition;
             this.nextDirection = nextDirection;
             this.visited = new ArrayList<>();
+            Arrays.stream(grid.grid).forEach(System.out::println);
         }
 
         public boolean findNext() {
             GridItem nextItem = grid.get(currentPosition.y + nextDirection.y, currentPosition.x + nextDirection.x).orElseThrow();
             currentPosition = nextItem;
             visited.add(nextItem);
+            return getNextDirection(nextItem);
+        }
+
+        private boolean getNextDirection(GridItem nextItem) {
             switch (nextItem.value) {
                 case 'F' -> {
                     if (nextDirection == UP) {
@@ -129,7 +140,6 @@ public class Day10 {
                     return true;
                 }
             }
-            System.out.println(currentPosition + " " + nextDirection);
             return false;
         }
 
@@ -176,31 +186,69 @@ public class Day10 {
             return Optional.empty();
         }
 
+        public GridNavigator.NEXT_DIRECTION getStartingDirection(GridItem startingPosition) {
+            List<Optional<GridItem>> startingNeighbours = getNeighboursStar(startingPosition.y, startingPosition.x);
+            System.out.println(startingNeighbours);
+            Optional<GridNavigator.NEXT_DIRECTION> UP = startingNeighbours.get(0).map(top -> {
+                if (top.value == '|' || top.value == 'F' || top.value == '7') {
+                    return GridNavigator.NEXT_DIRECTION.UP;
+                }
+                return null;
+            });
+            if (UP.isPresent()) return UP.get();
+
+            Optional<GridNavigator.NEXT_DIRECTION> LEFT = startingNeighbours.get(1).map(left -> {
+                if (left.value == '-' || left.value == 'L' || left.value == 'F') {
+                    return GridNavigator.NEXT_DIRECTION.LEFT;
+                }
+                return null;
+            });
+            if (LEFT.isPresent()) return LEFT.get();
+
+            Optional<GridNavigator.NEXT_DIRECTION> RIGHT = startingNeighbours.get(2).map(right -> {
+                if (right.value == '-' || right.value == 'J' || right.value == '7') {
+                    return GridNavigator.NEXT_DIRECTION.RIGHT;
+                }
+                return null;
+            });
+            if (RIGHT.isPresent()) return RIGHT.get();
+
+            Optional<GridNavigator.NEXT_DIRECTION> DOWN = startingNeighbours.get(3).map(down -> {
+                if (down.value == '|' || down.value == 'J' || down.value == 'L') {
+                    return GridNavigator.NEXT_DIRECTION.DOWN;
+                }
+                return null;
+            });
+            if (DOWN.isPresent()) return DOWN.get();
+
+            throw new RuntimeException("No starting direction found");
+        }
+
         public List<GridItem> getNeighbours3x3(int y, int x) {
             List<GridItem> neighbours = new ArrayList<>();
             get(y + 1, x + 1).ifPresent(neighbours::add);
-            get(y + 1, x    ).ifPresent(neighbours::add);
+            get(y + 1, x).ifPresent(neighbours::add);
             get(y + 1, x - 1).ifPresent(neighbours::add);
 
-            get(y    , x + 1).ifPresent(neighbours::add);
-            get(y    , x    ).ifPresent(neighbours::add);
-            get(y    , x - 1).ifPresent(neighbours::add);
+            get(y, x + 1).ifPresent(neighbours::add);
+            get(y, x).ifPresent(neighbours::add);
+            get(y, x - 1).ifPresent(neighbours::add);
 
             get(y - 1, x + 1).ifPresent(neighbours::add);
-            get(y - 1, x    ).ifPresent(neighbours::add);
+            get(y - 1, x).ifPresent(neighbours::add);
             get(y - 1, x - 1).ifPresent(neighbours::add);
             return neighbours;
         }
 
-        public List<GridItem> getNeighboursStar(int y, int x) {
-            List<GridItem> neighbours = new ArrayList<>();
-            get(y + 1, x).ifPresent(neighbours::add);
+        public List<Optional<GridItem>> getNeighboursStar(int y, int x) {
+            List<Optional<GridItem>> neighbours = new ArrayList<>();
+            neighbours.add(get(y + 1, x));
 
-            get(y, x + 1).ifPresent(neighbours::add);
-            get(y, x - 1).ifPresent(neighbours::add);
+            neighbours.add(get(y, x + 1));
+            neighbours.add(get(y, x - 1));
 
-            get(y - 1, x).ifPresent(neighbours::add);
-            return neighbours;
+            neighbours.add(get(y - 1, x));
+            return neighbours.reversed();
         }
 
         public Optional<GridItem> get(int y, int x) {
